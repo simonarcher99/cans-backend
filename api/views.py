@@ -1,3 +1,6 @@
 from django.shortcuts import render
+from django.http import JsonResponse
 
-# Create your views here.
+
+def main(request):
+    return JsonResponse({'status': 200, 'content': 'Succesfully connected to backend'})
