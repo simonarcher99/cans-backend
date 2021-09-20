@@ -1,3 +1,6 @@
 from django.db import models
 
-# Create your models here.
+class Cans(models.Model):
+    item = models.CharField(max_length=200, unique=True)
+    quantity = models.IntegerField()
+    
