@@ -1,6 +1,12 @@
+import json
+from django.http.response import JsonResponse
 from django.shortcuts import render
-from django.http import JsonResponse
-
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.http import HttpResponse, JsonResponse
 
 def main(request):
-    return JsonResponse({'status': 200, 'content': 'Succesfully connected to backend'})
+
+    if request.method == 'GET':
+        data = json.dumps({"message": "Connected to backend"})
+        return HttpResponse(data, content_type='application/json')
