@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import main
+from . import views
 
 
 urlpatterns = [
-    path('', main)
-]
+    path('cans', views.CanItemViews.as_view())
+    ]

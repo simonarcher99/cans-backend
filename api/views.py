@@ -1,12 +1,21 @@
-import json
-from django.http.response import JsonResponse
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.http import HttpResponse, JsonResponse
+from rest_framework import status
+from .serializers import CanSerializer
+from .models import Cans
 
-def main(request):
+class CanItemViews(APIView):
+    queryset = Cans.objects.all() 
+    def post(self, request):
+        serializer = CanSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
+        else:
+            return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-    if request.method == 'GET':
-        data = json.dumps({"message": "Connected to backend"})
-        return HttpResponse(data, content_type='application/json')
+
+    def get(self, request):
+        items = Cans.objects.all()
+        serializer = CanSerializer(items, many=True)
+        return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
