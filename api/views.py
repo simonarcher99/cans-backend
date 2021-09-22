@@ -32,4 +32,13 @@ class CanItemViews(APIView):
         can.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    def patch(self, request, pk):
+        can = self.get_object(pk)
+        serializer = CanSerializer(can, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status.status_HTTP_400_BAD_REQUEST)
+
+
 
