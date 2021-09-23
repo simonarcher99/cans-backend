@@ -14,16 +14,16 @@ class CanItemViews(APIView):
             raise Http404
 
     def post(self, request):
-        item = request.data.dict()['item']
+        item = request.data['item']
         if Cans.objects.filter(item=item).exists():
             return Response({"status": "error", "message": "An item with that name already exists"}, status=status.HTTP_502_BAD_GATEWAY)
-        if int(request.data.dict()['quantity']) < 1:
+        if int(request.data['quantity']) < 1:
             return Response({"status": "error", "message": "Please enter a quantity greater than 0"}, status=status.HTTP_502_BAD_GATEWAY)
 
         serializer = CanSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"status": "success", "data": request.data}, status=status.HTTP_200_OK)
+            return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
         else:
             return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
