@@ -1,6 +1,6 @@
 FROM python:3.8.3-slim-buster
 
-ENV PYTHONBUFFERED 1
+ENV PYTHONUNBUFFERED 1
 
 COPY ./requirements.txt /requirements.txt
 
