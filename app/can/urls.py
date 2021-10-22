@@ -1,14 +1,11 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
+from django.urls import path
 
 from can import views
 
 
-router = DefaultRouter()
-router.register('can', views.CanViewSet)
-
 app_name = 'can'
 
 urlpatterns = [
-    path('', include(router.urls))
+    path('', views.CanViewSet.as_view(
+        {'get': 'list', 'post': 'create'}), name='can')
 ]

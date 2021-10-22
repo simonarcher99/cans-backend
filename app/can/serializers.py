@@ -8,5 +8,5 @@ class CanSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Can
-        fields = ('id', 'title')
+        fields = ('id', 'title', 'quantity')
         read_only_fields = ('id',)

@@ -10,7 +10,7 @@ from can.serializers import CanSerializer
 from core.models import Can
 
 
-CREATE_CAN_URL = reverse('can:can-list')
+CREATE_CAN_URL = reverse('can:can')
 
 
 class TestPublicCanApi(TestCase):
