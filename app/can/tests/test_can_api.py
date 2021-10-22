@@ -3,14 +3,31 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from rest_framework.test import APIClient
-from rest_framework import status
+from rest_framework import serializers, status
 
 from can.serializers import CanSerializer
+
+import os
 
 from core.models import Can
 
 
 CAN_URL = reverse('can:can')
+
+
+def delete_edit_can_url(pk):
+    return os.path.join(reverse('can:can') + f'{pk}')
+
+
+def create_can(user, **kwargs):
+    """Helper function to create a can object"""
+    defaults = {
+        'title': 'baked beans',
+        'quantity': 5
+    }
+    defaults.update(kwargs)
+
+    return Can.objects.create(user=user, **defaults)
 
 
 class TestPublicCanApi(TestCase):
@@ -77,3 +94,42 @@ class TestPrivateCanApi(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
+
+    def test_list_cans_returns_all_cans(self):
+        """Test that the list cans endpoint returns all the users cans"""
+        create_can(user=self.user)
+        create_can(user=self.user, title='mango chutney', quantity=5)
+
+        res = self.client.get(CAN_URL)
+
+        cans = Can.objects.filter(user=self.user)
+        serializer = CanSerializer(cans, many=True)
+        self.assertEqual(len(res.data), 2)
+        self.assertEqual(res.data, serializer.data)
+
+    def test_delete_can(self):
+        """Test that if a user deletes a can it is removed from the database"""
+        can = create_can(user=self.user)
+
+        url = delete_edit_can_url(can.id)
+        res = self.client.delete(url)
+
+        cans = Can.objects.all()
+        self.assertEqual(len(cans), 0)
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_patch_can(self):
+        """Test that the user can edit the quantity of the can"""
+        can = create_can(user=self.user)
+        quantity = can.quantity
+
+        url = delete_edit_can_url(can.id)
+        payload = {
+            'quantity': quantity - 1
+        }
+        res = self.client.patch(url, payload)
+
+        can_edited = Can.objects.filter(id=can.id)[0]
+        serializer = CanSerializer(can_edited)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(serializer.data['quantity'], quantity-1)
