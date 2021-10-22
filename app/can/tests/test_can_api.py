@@ -10,7 +10,7 @@ from can.serializers import CanSerializer
 from core.models import Can
 
 
-CREATE_CAN_URL = reverse('can:can')
+CAN_URL = reverse('can:can')
 
 
 class TestPublicCanApi(TestCase):
@@ -27,7 +27,7 @@ class TestPublicCanApi(TestCase):
             'quantity': 5
         }
 
-        res = self.client.post(CREATE_CAN_URL, payload)
+        res = self.client.post(CAN_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
@@ -50,7 +50,7 @@ class TestPrivateCanApi(TestCase):
             'quantity': 5
         }
 
-        res = self.client.post(CREATE_CAN_URL, payload)
+        res = self.client.post(CAN_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
         exists = Can.objects.filter(
@@ -58,3 +58,22 @@ class TestPrivateCanApi(TestCase):
             title=payload['title']
         ).exists()
         self.assertTrue(exists)
+
+    def test_list_logged_in_users_cans(self):
+        """Test that the cans listed are the ones belonging to the currently authenticated user"""
+        payload = {
+            'title': 'baked beans',
+            'quantity': 5
+        }
+
+        user2 = get_user_model().objects.create_user(
+            email='test2@test.com',
+            password='password1232'
+        )
+        Can.objects.create(user=user2, title='chick peas', quantity=5)
+        Can.objects.create(user=self.user, **payload)
+
+        res = self.client.get(CAN_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)

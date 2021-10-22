@@ -17,3 +17,6 @@ class CanViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Create a new object"""
         serializer.save(user=self.request.user)
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
