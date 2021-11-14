@@ -1,6 +1,8 @@
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from django.http import JsonResponse
+
 
 from core.models import Can
 
@@ -16,6 +18,10 @@ class CanViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """Create a new object"""
+        # Need to change so that only currently authenticated users cans are checked
+        title = serializer.validated_data['title']
+        if len(self.queryset.filter(title=title)) > 0:
+            return JsonResponse({'status': 400, 'content': 'Can already exists'})
         serializer.save(user=self.request.user)
 
     def get_queryset(self):
